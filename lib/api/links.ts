@@ -18,7 +18,6 @@ const delay = (ms: number = 300) => new Promise(resolve => setTimeout(resolve, m
 
 /**
  * Get all links with optional filters
- * TODO: Replace with real API call when backend is ready
  */
 export async function getLinks(filters?: FilterParams): Promise<NegativeLink[]> {
   if (USE_MOCK) {
@@ -27,21 +26,19 @@ export async function getLinks(filters?: FilterParams): Promise<NegativeLink[]> 
     return filters ? applyFilters(links, filters) : links;
   }
 
-  // TODO: Uncomment when backend is ready
-  // const params = new URLSearchParams(filters as any);
-  // const response = await fetch(`${API_BASE_URL}/api/links/?${params}`, {
-  //   method: 'GET',
-  //   headers: { 'Content-Type': 'application/json' },
-  // });
-  // if (!response.ok) throw new Error('Failed to fetch links');
-  // return response.json();
-
-  return [];
+  // Real API call
+  const params = new URLSearchParams(filters as any);
+  const response = await fetch(`${API_BASE_URL}/api/links/?${params}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (!response.ok) throw new Error('Failed to fetch links');
+  return response.json();
+}
 }
 
 /**
  * Get a single link by ID
- * TODO: Replace with real API call when backend is ready
  */
 export async function getLinkById(id: string): Promise<NegativeLink | null> {
   if (USE_MOCK) {
@@ -50,20 +47,18 @@ export async function getLinkById(id: string): Promise<NegativeLink | null> {
     return links.find(link => link.id === id) || null;
   }
 
-  // TODO: Uncomment when backend is ready
-  // const response = await fetch(`${API_BASE_URL}/api/links/${id}/`, {
-  //   method: 'GET',
-  //   headers: { 'Content-Type': 'application/json' },
-  // });
-  // if (!response.ok) throw new Error('Failed to fetch link');
-  // return response.json();
-
-  return null;
+  // Real API call
+  const response = await fetch(`${API_BASE_URL}/api/links/${id}/`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (!response.ok) throw new Error('Failed to fetch link');
+  return response.json();
+}
 }
 
 /**
  * Create a new link
- * TODO: Replace with real API call when backend is ready
  */
 export async function createLink(data: CreateLinkDto): Promise<NegativeLink> {
   if (USE_MOCK) {
@@ -83,21 +78,18 @@ export async function createLink(data: CreateLinkDto): Promise<NegativeLink> {
     return newLink;
   }
 
-  // TODO: Uncomment when backend is ready
-  // const response = await fetch(`${API_BASE_URL}/api/links/`, {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify(data),
-  // });
-  // if (!response.ok) throw new Error('Failed to create link');
-  // return response.json();
-
-  throw new Error('Not implemented');
+  // Real API call
+  const response = await fetch(`${API_BASE_URL}/api/links/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error('Failed to create link');
+  return response.json();
 }
 
 /**
  * Update an existing link
- * TODO: Replace with real API call when backend is ready
  */
 export async function updateLink(id: string, data: UpdateLinkDto): Promise<NegativeLink> {
   if (USE_MOCK) {
@@ -108,21 +100,18 @@ export async function updateLink(id: string, data: UpdateLinkDto): Promise<Negat
     return updated;
   }
 
-  // TODO: Uncomment when backend is ready
-  // const response = await fetch(`${API_BASE_URL}/api/links/${id}/`, {
-  //   method: 'PATCH',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify(data),
-  // });
-  // if (!response.ok) throw new Error('Failed to update link');
-  // return response.json();
-
-  throw new Error('Not implemented');
+  // Real API call
+  const response = await fetch(`${API_BASE_URL}/api/links/${id}/`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error('Failed to update link');
+  return response.json();
 }
 
 /**
  * Delete a link
- * TODO: Replace with real API call when backend is ready
  */
 export async function deleteLink(id: string): Promise<void> {
   if (USE_MOCK) {
@@ -131,17 +120,16 @@ export async function deleteLink(id: string): Promise<void> {
     return;
   }
 
-  // TODO: Uncomment when backend is ready
-  // const response = await fetch(`${API_BASE_URL}/api/links/${id}/`, {
-  //   method: 'DELETE',
-  //   headers: { 'Content-Type': 'application/json' },
-  // });
-  // if (!response.ok) throw new Error('Failed to delete link');
+  // Real API call
+  const response = await fetch(`${API_BASE_URL}/api/links/${id}/`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (!response.ok) throw new Error('Failed to delete link');
 }
 
 /**
  * Bulk update status for multiple links
- * TODO: Replace with real API call when backend is ready
  */
 export async function bulkUpdateStatus(ids: string[], status: string): Promise<void> {
   if (USE_MOCK) {
@@ -155,18 +143,17 @@ export async function bulkUpdateStatus(ids: string[], status: string): Promise<v
     return;
   }
 
-  // TODO: Uncomment when backend is ready
-  // const response = await fetch(`${API_BASE_URL}/api/links/bulk-update-status/`, {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify({ ids, status }),
-  // });
-  // if (!response.ok) throw new Error('Failed to bulk update status');
+  // Real API call
+  const response = await fetch(`${API_BASE_URL}/api/links/bulk-update-status/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ids, status }),
+  });
+  if (!response.ok) throw new Error('Failed to bulk update status');
 }
 
 /**
  * Bulk assign manager to multiple links
- * TODO: Replace with real API call when backend is ready
  */
 export async function bulkAssignManager(ids: string[], manager: string): Promise<void> {
   if (USE_MOCK) {
@@ -177,11 +164,11 @@ export async function bulkAssignManager(ids: string[], manager: string): Promise
     return;
   }
 
-  // TODO: Uncomment when backend is ready
-  // const response = await fetch(`${API_BASE_URL}/api/links/bulk-assign-manager/`, {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify({ ids, manager }),
-  // });
-  // if (!response.ok) throw new Error('Failed to bulk assign manager');
+  // Real API call
+  const response = await fetch(`${API_BASE_URL}/api/links/bulk-assign-manager/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ids, manager }),
+  });
+  if (!response.ok) throw new Error('Failed to bulk assign manager');
 }

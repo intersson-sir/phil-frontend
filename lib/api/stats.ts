@@ -11,7 +11,6 @@ const delay = (ms: number = 300) => new Promise(resolve => setTimeout(resolve, m
 
 /**
  * Get dashboard statistics
- * TODO: Replace with real API call when backend is ready
  */
 export async function getDashboardStats(): Promise<DashboardStats> {
   if (USE_MOCK) {
@@ -84,20 +83,17 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     };
   }
 
-  // TODO: Uncomment when backend is ready
-  // const response = await fetch(`${API_BASE_URL}/api/stats/dashboard/`, {
-  //   method: 'GET',
-  //   headers: { 'Content-Type': 'application/json' },
-  // });
-  // if (!response.ok) throw new Error('Failed to fetch dashboard stats');
-  // return response.json();
-
-  throw new Error('Not implemented');
+  // Real API call
+  const response = await fetch(`${API_BASE_URL}/api/stats/dashboard/`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (!response.ok) throw new Error('Failed to fetch dashboard stats');
+  return response.json();
 }
 
 /**
  * Get statistics for a specific platform
- * TODO: Replace with real API call when backend is ready
  */
 export async function getPlatformStats(platform: Platform): Promise<PlatformStats> {
   if (USE_MOCK) {
@@ -110,13 +106,11 @@ export async function getPlatformStats(platform: Platform): Promise<PlatformStat
     return platformStats;
   }
 
-  // TODO: Uncomment when backend is ready
-  // const response = await fetch(`${API_BASE_URL}/api/stats/platform/${platform}/`, {
-  //   method: 'GET',
-  //   headers: { 'Content-Type': 'application/json' },
-  // });
-  // if (!response.ok) throw new Error('Failed to fetch platform stats');
-  // return response.json();
-
-  throw new Error('Not implemented');
+  // Real API call
+  const response = await fetch(`${API_BASE_URL}/api/stats/platform/${platform}/`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (!response.ok) throw new Error('Failed to fetch platform stats');
+  return response.json();
 }
