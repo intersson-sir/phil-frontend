@@ -33,7 +33,20 @@ export async function getLinks(filters?: FilterParams): Promise<NegativeLink[]> 
     headers: { 'Content-Type': 'application/json' },
   });
   if (!response.ok) throw new Error('Failed to fetch links');
-  return response.json();
+  
+  const data = await response.json();
+  
+  // Handle both paginated and non-paginated responses
+  // DRF pagination: { count, next, previous, results: [...] }
+  // Non-paginated: [...]
+  if (Array.isArray(data)) {
+    return data;
+  } else if (data && Array.isArray(data.results)) {
+    return data.results;
+  } else {
+    console.error('Unexpected response format:', data);
+    return [];
+  }
 }
 
 /**
