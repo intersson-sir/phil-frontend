@@ -35,7 +35,6 @@ export async function getLinks(filters?: FilterParams): Promise<NegativeLink[]> 
   if (!response.ok) throw new Error('Failed to fetch links');
   return response.json();
 }
-}
 
 /**
  * Get a single link by ID
@@ -54,7 +53,6 @@ export async function getLinkById(id: string): Promise<NegativeLink | null> {
   });
   if (!response.ok) throw new Error('Failed to fetch link');
   return response.json();
-}
 }
 
 /**
