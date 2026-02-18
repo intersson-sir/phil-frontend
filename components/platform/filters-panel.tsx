@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import { FilterParams, Status, Priority } from '@/types';
-import { STATUSES, PRIORITIES, MANAGERS } from '@/lib/constants';
+import { STATUSES, PRIORITIES } from '@/lib/constants';
+import { useManagers } from '@/hooks/use-managers';
 
 interface FiltersPanelProps {
   filters: FilterParams;
@@ -22,6 +23,8 @@ export function FiltersPanel({
   onClearFilters, 
   hasActiveFilters 
 }: FiltersPanelProps) {
+  const { managers } = useManagers();
+  const activeManagers = managers.filter((m) => m.is_active);
   return (
     <div className="flex flex-wrap items-center gap-4 p-4 bg-card border rounded-lg">
       {/* Status Filter */}
@@ -75,9 +78,9 @@ export function FiltersPanel({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="__all__">All Managers</SelectItem>
-            {MANAGERS.map(manager => (
-              <SelectItem key={manager} value={manager}>
-                {manager}
+            {activeManagers.map((m) => (
+              <SelectItem key={m.id} value={m.id}>
+                {m.name}
               </SelectItem>
             ))}
           </SelectContent>

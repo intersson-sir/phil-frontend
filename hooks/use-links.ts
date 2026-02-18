@@ -11,24 +11,33 @@ export function useLinks(initialFilters?: FilterParams) {
   const [links, setLinks] = useState<NegativeLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filters, setFilters] = useState<FilterParams>(initialFilters || {});
+  const [filters, setFilters] = useState<FilterParams>(() => initialFilters ?? {});
+
+  // Use parent filters for fetching when they change (by value, to avoid ref loops)
+  const filtersForFetch = typeof initialFilters !== 'undefined' ? initialFilters : filters;
 
   const fetchLinks = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await getLinks(filters);
+      const data = await getLinks(filtersForFetch ?? {});
       setLinks(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch links');
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [filtersForFetch]);
 
   useEffect(() => {
     fetchLinks();
   }, [fetchLinks]);
+
+  // Sync internal filters from parent so setFilters/returned filters stay in sync
+  useEffect(() => {
+    const next = initialFilters ?? {};
+    setFilters(prev => (JSON.stringify(prev) === JSON.stringify(next) ? prev : next));
+  }, [initialFilters]);
 
   const addLink = async (data: CreateLinkDto) => {
     try {
@@ -59,6 +68,11 @@ export function useLinks(initialFilters?: FilterParams) {
     }
   };
 
+  /** Optimistic update: set link status in UI immediately (e.g. for Kanban drag). Revert by calling refresh() on API failure. */
+  const applyOptimisticStatus = useCallback((id: string, status: import('@/types').Status) => {
+    setLinks(prev => prev.map(link => link.id === id ? { ...link, status } : link));
+  }, []);
+
   const refresh = () => {
     fetchLinks();
   };
@@ -73,5 +87,6 @@ export function useLinks(initialFilters?: FilterParams) {
     modifyLink,
     removeLink,
     refresh,
+    applyOptimisticStatus,
   };
 }

@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { LinksTable } from '@/components/platform/links-table';
 import { LinkCard } from '@/components/platform/link-card';
+import { KanbanBoard } from '@/components/platform/KanbanBoard';
 import { FiltersPanel } from '@/components/platform/filters-panel';
 import { FiltersDrawer } from '@/components/platform/filters-drawer';
 import { BulkActionsBar } from '@/components/platform/bulk-actions';
@@ -15,10 +16,27 @@ import { PlatformIcon } from '@/components/shared/platform-icon';
 import { useLinks } from '@/hooks/use-links';
 import { useFilters } from '@/hooks/use-filters';
 import { useIsMobile } from '@/hooks/use-media-query';
+import { useManagers } from '@/hooks/use-managers';
 import { NegativeLink, Platform, Status } from '@/types';
 import { CreateLinkDto, UpdateLinkDto } from '@/types/api';
 import { bulkUpdateStatus, bulkAssignManager } from '@/lib/api/links';
 import { PLATFORMS } from '@/lib/constants';
+import { Button } from '@/components/ui/button';
+import { LayoutGrid, List } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+const VIEW_STORAGE_KEY = 'phil-platform-view';
+type ViewMode = 'table' | 'kanban';
+
+function getStoredView(): ViewMode {
+  if (typeof window === 'undefined') return 'table';
+  try {
+    const v = window.localStorage.getItem(VIEW_STORAGE_KEY);
+    return v === 'kanban' ? 'kanban' : 'table';
+  } catch {
+    return 'table';
+  }
+}
 
 export default function PlatformPage() {
   const params = useParams();
@@ -29,10 +47,28 @@ export default function PlatformPage() {
     platform,
   });
   
-  const { links, loading, addLink, modifyLink, removeLink, refresh } = useLinks(filters);
+  const { links, loading, addLink, modifyLink, removeLink, refresh, applyOptimisticStatus } = useLinks(filters);
+  const { managers } = useManagers();
   
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [editingLink, setEditingLink] = useState<NegativeLink | null>(null);
+  const [viewMode, setViewModeState] = useState<ViewMode>(() => getStoredView());
+
+  const setViewMode = (mode: ViewMode) => {
+    setViewModeState(mode);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(VIEW_STORAGE_KEY, mode);
+    }
+  };
+
+  const handleKanbanStatusChange = async (linkId: string, newStatus: Status) => {
+    applyOptimisticStatus(linkId, newStatus);
+    try {
+      await modifyLink(linkId, { status: newStatus });
+    } catch {
+      refresh();
+    }
+  };
 
   // Clear selection when filters change
   useEffect(() => {
@@ -97,8 +133,34 @@ export default function PlatformPage() {
         <CreateLinkDialog onCreateLink={handleCreateLink} />
       </div>
 
-      {/* Filters */}
-      <div className="flex items-center gap-2">
+      {/* View toggle + Filters */}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex rounded-lg border border-border bg-muted/30 p-0.5">
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              'gap-1.5',
+              viewMode === 'table' && 'bg-background shadow-sm'
+            )}
+            onClick={() => setViewMode('table')}
+          >
+            <List className="h-4 w-4" />
+            Table
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              'gap-1.5',
+              viewMode === 'kanban' && 'bg-background shadow-sm'
+            )}
+            onClick={() => setViewMode('kanban')}
+          >
+            <LayoutGrid className="h-4 w-4" />
+            Kanban
+          </Button>
+        </div>
         {isMobile ? (
           <FiltersDrawer
             filters={filters}
@@ -138,6 +200,14 @@ export default function PlatformPage() {
             <p className="text-muted-foreground">Loading links...</p>
           </div>
         </div>
+      ) : viewMode === 'kanban' ? (
+        <KanbanBoard
+          links={links}
+          managers={managers}
+          onEdit={setEditingLink}
+          onDelete={handleDeleteLink}
+          onStatusChange={handleKanbanStatusChange}
+        />
       ) : isMobile ? (
         <div className="space-y-3">
           {links.map((link) => (
@@ -154,6 +224,7 @@ export default function PlatformPage() {
               }}
               onEdit={setEditingLink}
               onDelete={handleDeleteLink}
+              managers={managers}
             />
           ))}
         </div>
@@ -164,6 +235,7 @@ export default function PlatformPage() {
           onSelectionChange={setSelectedIds}
           onEdit={setEditingLink}
           onDelete={handleDeleteLink}
+          managers={managers}
         />
       )}
 

@@ -1,6 +1,6 @@
 // Date utility functions for Phil CRM
 
-import { format, parseISO, subDays, isAfter, isBefore } from 'date-fns';
+import { format, parseISO, subDays, isAfter, isBefore, formatDistanceToNow } from 'date-fns';
 
 export function formatDate(dateString: string, formatStr: string = 'MMM dd, yyyy'): string {
   try {
@@ -42,4 +42,13 @@ export function isWithinLast7Days(dateString: string): boolean {
 
 export function getToday(): string {
   return new Date().toISOString();
+}
+
+/** Relative time for activity log, e.g. "5 minutes ago" */
+export function formatRelativeTime(isoString: string): string {
+  try {
+    return formatDistanceToNow(parseISO(isoString), { addSuffix: true });
+  } catch {
+    return isoString;
+  }
 }

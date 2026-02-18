@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { X } from 'lucide-react';
 import { Status } from '@/types';
-import { STATUSES, MANAGERS } from '@/lib/constants';
+import { STATUSES } from '@/lib/constants';
+import { useManagers } from '@/hooks/use-managers';
 
 interface BulkActionsBarProps {
   selectedCount: number;
@@ -21,6 +22,8 @@ export function BulkActionsBar({
   onUpdateStatus,
   onAssignManager 
 }: BulkActionsBarProps) {
+  const { managers } = useManagers();
+  const activeManagers = managers.filter((m) => m.is_active);
   if (selectedCount === 0) return null;
 
   return (
@@ -59,9 +62,9 @@ export function BulkActionsBar({
               <SelectValue placeholder="Assign Manager" />
             </SelectTrigger>
             <SelectContent>
-              {MANAGERS.map(manager => (
-                <SelectItem key={manager} value={manager}>
-                  {manager}
+              {activeManagers.map((m) => (
+                <SelectItem key={m.id} value={m.id}>
+                  {m.name}
                 </SelectItem>
               ))}
             </SelectContent>

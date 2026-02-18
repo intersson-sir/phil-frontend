@@ -20,8 +20,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, ExternalLink } from 'lucide-react';
-import { NegativeLink } from '@/types';
+import { NegativeLink, Manager } from '@/types';
 import { StatusBadge } from '@/components/shared/status-badge';
+import { getManagerDisplayName } from '@/lib/utils';
 import { PriorityBadge } from '@/components/shared/priority-badge';
 import { PlatformIcon } from '@/components/shared/platform-icon';
 import { formatDate } from '@/lib/utils/dates';
@@ -33,6 +34,7 @@ interface LinksTableProps {
   onSelectionChange: (ids: string[]) => void;
   onEdit: (link: NegativeLink) => void;
   onDelete: (id: string) => void;
+  managers?: Manager[];
 }
 
 export function LinksTable({ 
@@ -40,7 +42,8 @@ export function LinksTable({
   selectedIds, 
   onSelectionChange, 
   onEdit, 
-  onDelete 
+  onDelete,
+  managers = [],
 }: LinksTableProps) {
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -135,7 +138,7 @@ export function LinksTable({
                   <PriorityBadge priority={link.priority} />
                 </TableCell>
                 <TableCell>
-                  <span className="text-sm">{link.manager || '—'}</span>
+                  <span className="text-sm">{getManagerDisplayName(link.manager, managers)}</span>
                 </TableCell>
                 <TableCell>
                   <span className="text-sm text-muted-foreground">

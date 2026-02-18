@@ -19,13 +19,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus } from 'lucide-react';
 import { CreateLinkDto } from '@/types/api';
 import { Platform, LinkType, Priority, Status } from '@/types';
-import { PLATFORMS, LINK_TYPES, PRIORITIES, STATUSES, MANAGERS } from '@/lib/constants';
+import { PLATFORMS, LINK_TYPES, PRIORITIES, STATUSES } from '@/lib/constants';
+import { useManagers } from '@/hooks/use-managers';
 
 interface CreateLinkDialogProps {
   onCreateLink: (data: CreateLinkDto) => Promise<void>;
 }
 
 export function CreateLinkDialog({ onCreateLink }: CreateLinkDialogProps) {
+  const { managers } = useManagers();
+  const activeManagers = managers.filter((m) => m.is_active);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<CreateLinkDto>({
@@ -43,7 +46,6 @@ export function CreateLinkDialog({ onCreateLink }: CreateLinkDialogProps) {
     try {
       await onCreateLink(formData);
       setOpen(false);
-      // Reset form
       setFormData({
         url: '',
         platform: 'other',
@@ -174,16 +176,17 @@ export function CreateLinkDialog({ onCreateLink }: CreateLinkDialogProps) {
             <div className="grid gap-2">
               <Label htmlFor="manager">Manager</Label>
               <Select 
-                value={formData.manager || ''} 
-                onValueChange={(value) => setFormData({ ...formData, manager: value })}
+                value={formData.manager_id ?? ''} 
+                onValueChange={(value) => setFormData({ ...formData, manager_id: value || undefined })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select manager (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  {MANAGERS.map(manager => (
-                    <SelectItem key={manager} value={manager}>
-                      {manager}
+                  <SelectItem value="">Unassigned</SelectItem>
+                  {activeManagers.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      {m.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

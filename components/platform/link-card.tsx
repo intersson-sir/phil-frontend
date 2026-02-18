@@ -12,8 +12,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { NegativeLink } from '@/types';
+import { NegativeLink, Manager } from '@/types';
 import { StatusBadge } from '@/components/shared/status-badge';
+import { getManagerDisplayName } from '@/lib/utils';
 import { PriorityBadge } from '@/components/shared/priority-badge';
 import { PlatformIcon } from '@/components/shared/platform-icon';
 import { formatDate } from '@/lib/utils/dates';
@@ -25,9 +26,10 @@ interface LinkCardProps {
   onSelect: (checked: boolean) => void;
   onEdit: (link: NegativeLink) => void;
   onDelete: (id: string) => void;
+  managers?: Manager[];
 }
 
-export function LinkCard({ link, selected, onSelect, onEdit, onDelete }: LinkCardProps) {
+export function LinkCard({ link, selected, onSelect, onEdit, onDelete, managers = [] }: LinkCardProps) {
   const getLinkTypeLabel = (type: string) => {
     return LINK_TYPES.find(t => t.value === type)?.label || type;
   };
@@ -96,7 +98,7 @@ export function LinkCard({ link, selected, onSelect, onEdit, onDelete }: LinkCar
 
             {/* Manager and Date */}
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>{link.manager || 'Unassigned'}</span>
+              <span>{link.manager ? getManagerDisplayName(link.manager, managers) : 'Unassigned'}</span>
               <span>{formatDate(link.detected_at)}</span>
             </div>
 

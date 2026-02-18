@@ -4,9 +4,9 @@ import { NegativeLink, Platform, LinkType, Status, Priority } from '@/types';
 
 const platforms: Platform[] = ['facebook', 'twitter', 'youtube', 'reddit', 'other'];
 const types: LinkType[] = ['post', 'comment', 'video', 'article'];
-const statuses: Status[] = ['active', 'removed', 'in_work', 'pending'];
+const statuses: Status[] = ['active', 'removed', 'in_work', 'pending', 'cancelled'];
 const priorities: Priority[] = ['low', 'medium', 'high'];
-const managers = ['John Doe', 'Jane Smith', 'Mike Johnson', 'Sarah Williams'];
+const managerIds = ['1', '2', '3', '4']; // match MOCK_MANAGERS in managers.ts
 
 const sampleUrls: Record<Platform, string[]> = {
   facebook: [
@@ -60,7 +60,7 @@ function generateMockLink(id: number): NegativeLink {
     detected_at: detectedAt,
     removed_at: status === 'removed' ? randomDate(30) : undefined,
     priority: randomElement(priorities),
-    manager: Math.random() > 0.3 ? randomElement(managers) : undefined,
+    manager: Math.random() > 0.3 ? randomElement(managerIds) : undefined,
     notes: Math.random() > 0.5 
       ? 'Sample note: This link contains negative content that needs review.'
       : undefined,

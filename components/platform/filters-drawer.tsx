@@ -9,7 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Filter, X } from 'lucide-react';
 import { FilterParams, Status, Priority } from '@/types';
-import { STATUSES, PRIORITIES, MANAGERS } from '@/lib/constants';
+import { STATUSES, PRIORITIES } from '@/lib/constants';
+import { useManagers } from '@/hooks/use-managers';
 
 interface FiltersDrawerProps {
   filters: FilterParams;
@@ -24,6 +25,8 @@ export function FiltersDrawer({
   onClearFilters, 
   hasActiveFilters 
 }: FiltersDrawerProps) {
+  const { managers } = useManagers();
+  const activeManagers = managers.filter((m) => m.is_active);
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -97,9 +100,9 @@ export function FiltersDrawer({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="__all__">All Managers</SelectItem>
-                {MANAGERS.map(manager => (
-                  <SelectItem key={manager} value={manager}>
-                    {manager}
+                {activeManagers.map((m) => (
+                  <SelectItem key={m.id} value={m.id}>
+                    {m.name}
                   </SelectItem>
                 ))}
               </SelectContent>

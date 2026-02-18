@@ -54,13 +54,12 @@ export function PlatformGrid({ platformStats }: PlatformGridProps) {
                       {stats.removed} removed
                     </Badge>
                   )}
+                  {stats.cancelled > 0 && (
+                    <Badge variant="outline" className="bg-gray-800/60 text-gray-400 border-gray-600 text-xs">
+                      {stats.cancelled} cancelled
+                    </Badge>
+                  )}
                 </div>
-                
-                {stats.new_last_7_days > 0 && (
-                  <div className="text-xs text-muted-foreground">
-                    +{stats.new_last_7_days} new this week
-                  </div>
-                )}
               </div>
             </CardContent>
           </Card>

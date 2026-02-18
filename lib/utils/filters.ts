@@ -1,7 +1,13 @@
 // Filter utility functions for Phil CRM
 
-import { NegativeLink, FilterParams } from '@/types';
+import { NegativeLink, FilterParams, Manager } from '@/types';
 import { isDateInRange } from './dates';
+
+function getManagerId(manager: NegativeLink['manager']): string | undefined {
+  if (manager == null) return undefined;
+  if (typeof manager === 'object' && 'id' in manager) return (manager as Manager).id;
+  return typeof manager === 'string' ? manager : undefined;
+}
 
 export function applyFilters(links: NegativeLink[], filters: FilterParams): NegativeLink[] {
   return links.filter((link) => {
@@ -20,8 +26,8 @@ export function applyFilters(links: NegativeLink[], filters: FilterParams): Nega
       return false;
     }
 
-    // Manager filter
-    if (filters.manager && link.manager !== filters.manager) {
+    // Manager filter (compare manager id)
+    if (filters.manager && getManagerId(link.manager) !== filters.manager) {
       return false;
     }
 

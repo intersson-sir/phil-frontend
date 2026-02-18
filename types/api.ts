@@ -2,25 +2,25 @@
 
 import { NegativeLink, Status, Platform, LinkType, Priority } from './index';
 
-// DTO for creating a new link
+// DTO for creating a new link (API expects manager_id)
 export interface CreateLinkDto {
   url: string;
   platform: Platform;
   type: LinkType;
   status?: Status;
   priority?: Priority;
-  manager?: string;
+  manager_id?: string | null;
   notes?: string;
 }
 
-// DTO for updating a link
+// DTO for updating a link (API expects manager_id)
 export interface UpdateLinkDto {
   url?: string;
   platform?: Platform;
   type?: LinkType;
   status?: Status;
   priority?: Priority;
-  manager?: string;
+  manager_id?: string | null;
   notes?: string;
   removed_at?: string;
 }
@@ -40,5 +40,5 @@ export interface BulkUpdateStatusRequest {
 
 export interface BulkAssignManagerRequest {
   ids: string[];
-  manager: string;
+  manager_id: string;
 }

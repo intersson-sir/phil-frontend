@@ -15,6 +15,7 @@ export const STATUSES: { value: Status; label: string; color: string }[] = [
   { value: 'removed', label: 'Removed', color: 'gray' },
   { value: 'in_work', label: 'In Work', color: 'yellow' },
   { value: 'pending', label: 'Pending', color: 'blue' },
+  { value: 'cancelled', label: 'Cancelled', color: 'gray' },
 ];
 
 export const PRIORITIES: { value: Priority; label: string; color: string }[] = [
