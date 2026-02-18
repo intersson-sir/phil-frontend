@@ -119,9 +119,17 @@ export async function createLink(data: CreateLinkDto): Promise<NegativeLink> {
     type: data.type,
     status: data.status ?? 'pending',
     priority: data.priority ?? 'medium',
-    notes: data.notes ?? '',
   };
-  if (data.manager_id != null) body.manager_id = data.manager_id;
+  
+  // Only include notes if not empty
+  if (data.notes && data.notes.trim()) {
+    body.notes = data.notes.trim();
+  }
+  
+  // Only include manager_id if valid UUID (not undefined, not empty string)
+  if (data.manager_id && data.manager_id.trim()) {
+    body.manager_id = data.manager_id.trim();
+  }
 
   const raw = await apiRequest<Record<string, unknown>>(`${API_BASE_URL}/api/links/`, {
     method: 'POST',

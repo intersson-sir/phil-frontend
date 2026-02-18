@@ -44,7 +44,26 @@ export function CreateLinkDialog({ onCreateLink }: CreateLinkDialogProps) {
     setLoading(true);
     
     try {
-      await onCreateLink(formData);
+      // Clean data before sending
+      const cleanData: CreateLinkDto = {
+        url: formData.url.trim(),
+        platform: formData.platform,
+        type: formData.type,
+        priority: formData.priority,
+        status: formData.status,
+      };
+      
+      // Only add manager_id if it's a valid non-empty string
+      if (formData.manager_id && formData.manager_id !== 'none') {
+        cleanData.manager_id = formData.manager_id;
+      }
+      
+      // Only add notes if not empty
+      if (formData.notes && formData.notes.trim()) {
+        cleanData.notes = formData.notes.trim();
+      }
+      
+      await onCreateLink(cleanData);
       setOpen(false);
       setFormData({
         url: '',
@@ -55,6 +74,7 @@ export function CreateLinkDialog({ onCreateLink }: CreateLinkDialogProps) {
       });
     } catch (error) {
       console.error('Failed to create link:', error);
+      alert(`Failed to create link: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
@@ -176,14 +196,20 @@ export function CreateLinkDialog({ onCreateLink }: CreateLinkDialogProps) {
             <div className="grid gap-2">
               <Label htmlFor="manager">Manager</Label>
               <Select 
-                value={formData.manager_id ?? ''} 
-                onValueChange={(value) => setFormData({ ...formData, manager_id: value || undefined })}
+                value={formData.manager_id ?? 'none'} 
+                onValueChange={(value) => {
+                  if (value === 'none' || value === '') {
+                    setFormData({ ...formData, manager_id: undefined });
+                  } else {
+                    setFormData({ ...formData, manager_id: value });
+                  }
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select manager (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Unassigned</SelectItem>
+                  <SelectItem value="none">Unassigned</SelectItem>
                   {activeManagers.map((m) => (
                     <SelectItem key={m.id} value={m.id}>
                       {m.name}

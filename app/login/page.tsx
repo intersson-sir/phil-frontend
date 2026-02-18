@@ -67,8 +67,8 @@ export default function LoginPage() {
 
       <Card className="w-full max-w-md border-border bg-card">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl">Вход</CardTitle>
-          <CardDescription>Введите логин и пароль для доступа в панель</CardDescription>
+          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardDescription>Enter your credentials to access the dashboard</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -81,12 +81,12 @@ export default function LoginPage() {
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="username">Логин или Email</Label>
+              <Label htmlFor="username">Username or Email</Label>
               <Input
                 id="username"
                 type="text"
                 autoComplete="username"
-                placeholder="username или email"
+                placeholder="username or email"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 disabled={submitting || isLoading}
@@ -94,7 +94,7 @@ export default function LoginPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Пароль</Label>
+              <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -114,10 +114,10 @@ export default function LoginPage() {
               {submitting || isLoading ? (
                 <span className="flex items-center gap-2">
                   <span className="size-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
-                  Вход...
+                  Signing in...
                 </span>
               ) : (
-                'Войти'
+                'Sign In'
               )}
             </Button>
           </form>
