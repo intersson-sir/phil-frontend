@@ -121,7 +121,7 @@ export default function DashboardPage() {
       {/* Header + Period Tabs */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="space-y-2">
-          <h1 className="text-4xl font-bold tracking-tight">Dashboard</h1>
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">{periodHeading}</p>
         </div>
         <Tabs value={period} onValueChange={handlePeriodChange}>

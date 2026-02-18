@@ -29,7 +29,7 @@ export function StatCard({ title, value, change, variant = 'default', icon }: St
         {icon && <div className="text-muted-foreground">{icon}</div>}
       </CardHeader>
       <CardContent>
-        <div className="text-3xl font-bold">{value.toLocaleString()}</div>
+        <div className="text-2xl sm:text-3xl font-bold">{value.toLocaleString()}</div>
         {change !== undefined && (
           <div className="flex items-center gap-1 mt-1 text-xs">
             {change >= 0 ? (
@@ -65,7 +65,7 @@ interface StatsCardsProps {
 
 export function StatsCards({ stats }: StatsCardsProps) {
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7">
+    <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-7">
       <StatCard 
         title="Total Links" 
         value={stats.total} 

@@ -73,16 +73,16 @@ export default function ManagersPage() {
 
   return (
     <div className="container py-8 px-4 space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="space-y-2">
-          <h1 className="text-4xl font-bold tracking-tight">Managers</h1>
-          <p className="text-muted-foreground">
+      <div className="flex items-center justify-between gap-2">
+        <div className="space-y-1 min-w-0">
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">Managers</h1>
+          <p className="text-muted-foreground text-sm hidden sm:block">
             Manage the list of managers for link assignment
           </p>
         </div>
-        <Button onClick={handleAdd} className="gap-2">
+        <Button onClick={handleAdd} className="gap-2 shrink-0">
           <Plus className="h-4 w-4" />
-          Add Manager
+          <span>Add Manager</span>
         </Button>
       </div>
 

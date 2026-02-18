@@ -1,8 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { UserCircle, LogOut, ChevronDown } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { UserCircle, LogOut, ChevronDown, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -10,13 +11,31 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetClose,
+} from '@/components/ui/sheet';
 import { useAuth } from '@/contexts/AuthContext';
+import { cn } from '@/lib/utils';
+
+const NAV_LINKS = [
+  { href: '/', label: 'Dashboard' },
+  { href: '/platform/facebook', label: 'Platforms' },
+  { href: '/managers', label: 'Managers' },
+  { href: '/activity', label: 'Activity' },
+];
 
 export function Header() {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, isAuthenticated, logout, isLoading } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
+    setMobileMenuOpen(false);
     await logout();
     router.push('/login');
   };
@@ -28,55 +47,52 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between px-4">
+      <div className="container flex h-14 sm:h-16 items-center justify-between px-4">
+
+        {/* Logo */}
         <Link
           href="/"
-          className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity shrink-0"
         >
-          <UserCircle className="h-8 w-8 text-red-500" />
+          <UserCircle className="h-7 w-7 sm:h-8 sm:w-8 text-red-500" />
           <div className="flex flex-col">
-            <span className="text-xl font-bold tracking-tight">Phil</span>
-            <span className="text-xs text-muted-foreground">Negative Link Tracker</span>
+            <span className="text-lg sm:text-xl font-bold tracking-tight leading-none">Phil</span>
+            <span className="text-[10px] sm:text-xs text-muted-foreground leading-tight hidden sm:block">
+              Negative Link Tracker
+            </span>
           </div>
         </Link>
 
-        <nav className="flex items-center gap-6">
-          {isAuthenticated && (
-            <>
+        {/* Desktop nav */}
+        {isAuthenticated && (
+          <nav className="hidden sm:flex items-center gap-6">
+            {NAV_LINKS.map(({ href, label }) => (
               <Link
-                href="/"
-                className="text-sm font-medium text-foreground/60 hover:text-foreground transition-colors"
+                key={href}
+                href={href}
+                className={cn(
+                  'text-sm font-medium transition-colors',
+                  pathname === href
+                    ? 'text-foreground'
+                    : 'text-foreground/60 hover:text-foreground'
+                )}
               >
-                Dashboard
+                {label}
               </Link>
-              <Link
-                href="/platform/facebook"
-                className="text-sm font-medium text-foreground/60 hover:text-foreground transition-colors"
-              >
-                Platforms
-              </Link>
-              <Link
-                href="/managers"
-                className="text-sm font-medium text-foreground/60 hover:text-foreground transition-colors"
-              >
-                Managers
-              </Link>
-              <Link
-                href="/activity"
-                className="text-sm font-medium text-foreground/60 hover:text-foreground transition-colors"
-              >
-                Activity
-              </Link>
-            </>
-          )}
+            ))}
+          </nav>
+        )}
 
+        {/* Right side */}
+        <div className="flex items-center gap-2">
+          {/* Desktop user menu */}
           {isAuthenticated && user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="gap-2 text-foreground/80 hover:text-foreground"
+                  className="gap-2 text-foreground/80 hover:text-foreground hidden sm:flex"
                 >
                   <span className="max-w-[120px] truncate" title={displayName || user.email}>
                     {displayName || user.username}
@@ -96,8 +112,77 @@ export function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-        </nav>
+
+          {/* Mobile burger button */}
+          {isAuthenticated && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex sm:hidden p-2"
+              onClick={() => setMobileMenuOpen(true)}
+              aria-label="Open menu"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          )}
+        </div>
       </div>
+
+      {/* Mobile Sheet */}
+      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+        <SheetContent side="left" className="w-72 p-0">
+          <SheetHeader className="px-6 py-5 border-b border-border/40">
+            <div className="flex items-center gap-3">
+              <UserCircle className="h-8 w-8 text-red-500 shrink-0" />
+              <div>
+                <SheetTitle className="text-base leading-tight">Phil</SheetTitle>
+                <p className="text-xs text-muted-foreground leading-tight">Negative Link Tracker</p>
+              </div>
+            </div>
+          </SheetHeader>
+
+          {/* Nav links */}
+          <nav className="flex flex-col px-3 py-4 gap-1">
+            {NAV_LINKS.map(({ href, label }) => (
+              <SheetClose asChild key={href}>
+                <Link
+                  href={href}
+                  className={cn(
+                    'flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors',
+                    pathname === href
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-foreground/70 hover:text-foreground hover:bg-muted/50'
+                  )}
+                >
+                  {label}
+                </Link>
+              </SheetClose>
+            ))}
+          </nav>
+
+          {/* User block at bottom */}
+          {user && (
+            <div className="mt-auto border-t border-border/40 px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-2 min-w-0">
+                <UserCircle className="h-5 w-5 text-muted-foreground shrink-0" />
+                <span className="text-sm truncate text-foreground/80">
+                  {displayName || user.username}
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                disabled={isLoading}
+                className="text-destructive hover:text-destructive shrink-0 p-2"
+                aria-label="Log out"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
     </header>
   );
 }

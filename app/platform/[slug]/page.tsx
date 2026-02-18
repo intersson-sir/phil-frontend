@@ -119,12 +119,12 @@ export default function PlatformPage() {
   return (
     <div className="container py-8 px-4 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <PlatformIcon platform={platform} size={32} className="text-primary" />
-          <div>
-            <h1 className="text-4xl font-bold tracking-tight">{platformLabel}</h1>
-            <p className="text-muted-foreground">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <PlatformIcon platform={platform} size={28} className="text-primary shrink-0 sm:size-8" />
+          <div className="min-w-0">
+            <h1 className="text-2xl sm:text-4xl font-bold tracking-tight truncate">{platformLabel}</h1>
+            <p className="text-muted-foreground text-sm">
               {loading ? 'Loading...' : `${links.length} links found`}
             </p>
           </div>

@@ -117,23 +117,38 @@
   --sidebar-ring: oklch(0.55 0.22 27.3);
 }
 
-/* Centered container: full width on mobile, max 1400px/1600px centered on desktop.
-   Padding оставляем на усмотрение страниц (px-4 и т.д.). */
 @layer components {
   .container {
     width: 100%;
     margin-left: auto;
     margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
   }
   @media (min-width: 1024px) {
     .container {
       max-width: 1400px;
+      padding-left: 2rem;
+      padding-right: 2rem;
     }
   }
   @media (min-width: 1536px) {
     .container {
       max-width: 1600px;
     }
+  }
+}
+
+/* Prevent horizontal overflow on mobile */
+@layer base {
+  html, body {
+    overflow-x: hidden;
   }
 }
 
