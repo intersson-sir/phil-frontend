@@ -24,7 +24,7 @@ import { cn } from '@/lib/utils';
 
 const NAV_LINKS = [
   { href: '/', label: 'Dashboard' },
-  { href: '/platform/facebook', label: 'Platforms' },
+  { href: '/platform/all', label: 'Platforms' },
   { href: '/managers', label: 'Managers' },
   { href: '/activity', label: 'Activity' },
 ];
