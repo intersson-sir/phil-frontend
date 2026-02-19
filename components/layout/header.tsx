@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { UserCircle, LogOut, ChevronDown, Menu } from 'lucide-react';
+import { LogOut, ChevronDown, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -54,7 +55,13 @@ export function Header() {
           href="/"
           className="flex items-center gap-2 hover:opacity-80 transition-opacity shrink-0"
         >
-          <UserCircle className="h-7 w-7 sm:h-8 sm:w-8 text-red-500" />
+          <Image
+            src="/logo-avatar.png"
+            alt="Phil"
+            width={32}
+            height={32}
+            className="h-7 w-7 sm:h-8 sm:w-8 rounded-full object-cover ring-1 ring-red-500/50"
+          />
           <div className="flex flex-col">
             <span className="text-lg sm:text-xl font-bold tracking-tight leading-none">Phil</span>
             <span className="text-[10px] sm:text-xs text-muted-foreground leading-tight hidden sm:block">
@@ -133,7 +140,13 @@ export function Header() {
         <SheetContent side="left" className="w-72 p-0">
           <SheetHeader className="px-6 py-5 border-b border-border/40">
             <div className="flex items-center gap-3">
-              <UserCircle className="h-8 w-8 text-red-500 shrink-0" />
+              <Image
+                src="/logo-avatar.png"
+                alt="Phil"
+                width={32}
+                height={32}
+                className="h-8 w-8 rounded-full object-cover ring-1 ring-red-500/50 shrink-0"
+              />
               <div>
                 <SheetTitle className="text-base leading-tight">Phil</SheetTitle>
                 <p className="text-xs text-muted-foreground leading-tight">Negative Link Tracker</p>
@@ -164,7 +177,13 @@ export function Header() {
           {user && (
             <div className="mt-auto border-t border-border/40 px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-2 min-w-0">
-                <UserCircle className="h-5 w-5 text-muted-foreground shrink-0" />
+                <Image
+                  src="/logo-avatar.png"
+                  alt="Phil"
+                  width={20}
+                  height={20}
+                  className="h-5 w-5 rounded-full object-cover shrink-0"
+                />
                 <span className="text-sm truncate text-foreground/80">
                   {displayName || user.username}
                 </span>

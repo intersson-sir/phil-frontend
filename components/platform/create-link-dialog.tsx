@@ -16,28 +16,54 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus } from 'lucide-react';
+import { Plus, Wand2 } from 'lucide-react';
 import { CreateLinkDto } from '@/types/api';
 import { Platform, LinkType, Priority, Status } from '@/types';
 import { PLATFORMS, LINK_TYPES, PRIORITIES, STATUSES } from '@/lib/constants';
 import { useManagers } from '@/hooks/use-managers';
 
-interface CreateLinkDialogProps {
-  onCreateLink: (data: CreateLinkDto) => Promise<void>;
+function detectPlatformFromUrl(url: string): Platform | null {
+  try {
+    const hostname = new URL(url).hostname.toLowerCase().replace(/^www\./, '');
+    if (hostname === 'facebook.com' || hostname === 'fb.com' || hostname.endsWith('.facebook.com')) return 'facebook';
+    if (hostname === 'twitter.com' || hostname === 'x.com' || hostname === 't.co') return 'twitter';
+    if (hostname === 'youtube.com' || hostname === 'youtu.be' || hostname.endsWith('.youtube.com')) return 'youtube';
+    if (hostname === 'reddit.com' || hostname === 'redd.it' || hostname.endsWith('.reddit.com')) return 'reddit';
+    return 'other';
+  } catch {
+    return null;
+  }
 }
 
-export function CreateLinkDialog({ onCreateLink }: CreateLinkDialogProps) {
+interface CreateLinkDialogProps {
+  onCreateLink: (data: CreateLinkDto) => Promise<void>;
+  defaultPlatform?: Platform;
+}
+
+export function CreateLinkDialog({ onCreateLink, defaultPlatform }: CreateLinkDialogProps) {
   const { managers } = useManagers();
   const activeManagers = managers.filter((m) => m.is_active);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [platformAutoDetected, setPlatformAutoDetected] = useState(false);
   const [formData, setFormData] = useState<CreateLinkDto>({
     url: '',
-    platform: 'other',
+    platform: defaultPlatform ?? 'other',
     type: 'post',
     priority: 'medium',
     status: 'pending',
   });
+
+  const handleUrlChange = (url: string) => {
+    const detected = detectPlatformFromUrl(url);
+    if (detected !== null) {
+      setPlatformAutoDetected(true);
+      setFormData(prev => ({ ...prev, url, platform: detected }));
+    } else {
+      setPlatformAutoDetected(false);
+      setFormData(prev => ({ ...prev, url }));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,9 +91,10 @@ export function CreateLinkDialog({ onCreateLink }: CreateLinkDialogProps) {
       
       await onCreateLink(cleanData);
       setOpen(false);
+      setPlatformAutoDetected(false);
       setFormData({
         url: '',
-        platform: 'other',
+        platform: defaultPlatform ?? 'other',
         type: 'post',
         priority: 'medium',
         status: 'pending',
@@ -80,8 +107,22 @@ export function CreateLinkDialog({ onCreateLink }: CreateLinkDialogProps) {
     }
   };
 
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      setPlatformAutoDetected(false);
+      setFormData({
+        url: '',
+        platform: defaultPlatform ?? 'other',
+        type: 'post',
+        priority: 'medium',
+        status: 'pending',
+      });
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button className="gap-2">
           <Plus className="h-4 w-4" />
@@ -105,17 +146,28 @@ export function CreateLinkDialog({ onCreateLink }: CreateLinkDialogProps) {
                 id="url"
                 placeholder="https://example.com/post/123"
                 value={formData.url}
-                onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                onChange={(e) => handleUrlChange(e.target.value)}
                 required
               />
             </div>
 
             {/* Platform */}
             <div className="grid gap-2">
-              <Label htmlFor="platform">Platform *</Label>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="platform">Platform *</Label>
+                {platformAutoDetected && (
+                  <span className="flex items-center gap-1 text-xs text-primary">
+                    <Wand2 className="h-3 w-3" />
+                    auto-detected
+                  </span>
+                )}
+              </div>
               <Select 
                 value={formData.platform} 
-                onValueChange={(value) => setFormData({ ...formData, platform: value as Platform })}
+                onValueChange={(value) => {
+                  setPlatformAutoDetected(false);
+                  setFormData({ ...formData, platform: value as Platform });
+                }}
               >
                 <SelectTrigger>
                   <SelectValue />

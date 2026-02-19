@@ -13,6 +13,7 @@ import { BulkActionsBar } from '@/components/platform/bulk-actions';
 import { CreateLinkDialog } from '@/components/platform/create-link-dialog';
 import { LinkEditorDialog } from '@/components/platform/link-editor-dialog';
 import { PlatformIcon } from '@/components/shared/platform-icon';
+import { Layers } from 'lucide-react';
 import { useLinks } from '@/hooks/use-links';
 import { useFilters } from '@/hooks/use-filters';
 import { useIsMobile } from '@/hooks/use-media-query';
@@ -40,12 +41,14 @@ function getStoredView(): ViewMode {
 
 export default function PlatformPage() {
   const params = useParams();
-  const platform = params.slug as Platform;
+  const slug = params.slug as string;
+  const isAll = slug === 'all';
+  const platform = isAll ? undefined : (slug as Platform);
   const isMobile = useIsMobile();
   
-  const { filters, updateFilter, clearAllFilters, hasActiveFilters, setFilters } = useFilters({
-    platform,
-  });
+  const { filters, updateFilter, clearAllFilters, hasActiveFilters, setFilters } = useFilters(
+    isAll ? {} : { platform }
+  );
   
   const { links, loading, addLink, modifyLink, removeLink, refresh, applyOptimisticStatus } = useLinks(filters);
   const { managers } = useManagers();
@@ -108,20 +111,26 @@ export default function PlatformPage() {
   ) => {
     if (value === '__all__' || value === '') {
       clearAllFilters();
-      setFilters({ platform });
+      if (!isAll) setFilters({ platform });
     } else {
       updateFilter(key, value);
     }
   };
 
-  const platformLabel = PLATFORMS.find(p => p.value === platform)?.label || platform;
+  const platformLabel = isAll
+    ? 'All Links'
+    : PLATFORMS.find(p => p.value === platform)?.label || slug;
 
   return (
     <div className="container py-8 px-4 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <PlatformIcon platform={platform} size={28} className="text-primary shrink-0 sm:size-8" />
+          {isAll ? (
+            <Layers className="text-primary shrink-0 size-7 sm:size-8" />
+          ) : (
+            <PlatformIcon platform={platform!} size={28} className="text-primary shrink-0 sm:size-8" />
+          )}
           <div className="min-w-0">
             <h1 className="text-2xl sm:text-4xl font-bold tracking-tight truncate">{platformLabel}</h1>
             <p className="text-muted-foreground text-sm">
@@ -130,7 +139,7 @@ export default function PlatformPage() {
           </div>
         </div>
         
-        <CreateLinkDialog onCreateLink={handleCreateLink} />
+        <CreateLinkDialog onCreateLink={handleCreateLink} defaultPlatform={platform} />
       </div>
 
       {/* View toggle + Filters */}
