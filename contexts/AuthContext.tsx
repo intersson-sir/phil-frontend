@@ -50,14 +50,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const user = await getMe();
       setState((s) => ({ ...s, user, isAuthenticated: true, isLoading: false, error: null }));
     } catch (e) {
-      clearStoredTokens();
-      setState((s) => ({
-        ...s,
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-        error: null,
-      }));
+      // Only clear tokens for auth errors (expired/invalid token), not network errors
+      const isAuthError = e instanceof AuthError &&
+        (e.code === 'session_expired' || e.code === 'unauthorized');
+      if (isAuthError) {
+        clearStoredTokens();
+        setState((s) => ({ ...s, user: null, isAuthenticated: false, isLoading: false, error: null }));
+      } else {
+        // Network error: keep the session, allow the user to stay logged in
+        // The token is still in localStorage, so API calls will still work
+        setState((s) => ({ ...s, isAuthenticated: true, isLoading: false }));
+      }
     }
   }, []);
 

@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { StatsCards } from '@/components/dashboard/stats-cards';
 import { PlatformGrid } from '@/components/dashboard/platform-grid';
 import { ActivityChart } from '@/components/dashboard/activity-chart';
@@ -11,6 +11,7 @@ import { DashboardStats } from '@/types';
 import type { StatsPeriod } from '@/types';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 const PERIOD_STORAGE_KEY = 'phil_dashboard_period';
 const DEFAULT_PERIOD: StatsPeriod = '30d';
@@ -29,12 +30,13 @@ const PERIOD_HEADINGS: Record<StatsPeriod, string> = {
 
 const FETCH_TIMEOUT_MS = 15_000;
 
-function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+function withTimeout<T>(promise: Promise<T>, ms: number, signal?: AbortSignal): Promise<T> {
   return Promise.race([
     promise,
-    new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('Request timed out')), ms)
-    ),
+    new Promise<never>((_, reject) => {
+      const timer = setTimeout(() => reject(new Error('Request timed out')), ms);
+      signal?.addEventListener('abort', () => { clearTimeout(timer); reject(new Error('Aborted')); });
+    }),
   ]);
 }
 
@@ -51,29 +53,44 @@ function setStoredPeriod(period: StatsPeriod): void {
 }
 
 export default function DashboardPage() {
+  const { isLoading: authLoading } = useAuth();
   const [period, setPeriod] = useState<StatsPeriod>(() => getStoredPeriod());
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   const fetchStats = useCallback(async (p: StatsPeriod) => {
+    // Cancel any in-flight request
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setLoading(true);
     setError(null);
     try {
-      const data = await withTimeout(getDashboardStats(p), FETCH_TIMEOUT_MS);
-      setStats(data);
+      const data = await withTimeout(getDashboardStats(p), FETCH_TIMEOUT_MS, controller.signal);
+      if (!controller.signal.aborted) {
+        setStats(data);
+      }
     } catch (err) {
+      if (controller.signal.aborted) return;
       const message = err instanceof Error ? err.message : 'Failed to load dashboard';
       setError(message);
       console.error('Failed to fetch dashboard stats:', err);
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) {
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
+    // Wait for auth context to finish its initial check before fetching
+    if (authLoading) return;
     fetchStats(period);
-  }, [period, fetchStats]);
+    return () => { abortRef.current?.abort(); };
+  }, [period, fetchStats, authLoading]);
 
   const handlePeriodChange = (value: string) => {
     const p = value as StatsPeriod;
@@ -84,7 +101,7 @@ export default function DashboardPage() {
   const periodHeading = `Statistics ${stats ? PERIOD_HEADINGS[stats.period] : PERIOD_HEADINGS[period]}`;
   const activityHeading = `Activity ${stats ? PERIOD_HEADINGS[stats.period] : PERIOD_HEADINGS[period]}`;
 
-  if (loading && !stats) {
+  if (authLoading || (loading && !stats)) {
     return (
       <div className="container py-8 px-4">
         <div className="flex items-center justify-center h-[60vh]">

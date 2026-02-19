@@ -258,15 +258,22 @@ export async function getMe(): Promise<User> {
   if (!token) throw new AuthError('Не авторизован', 'unauthorized');
 
   const url = `${API_BASE_URL}/api/auth/me/`;
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch {
+    // Network error — do NOT clear tokens, session may still be valid
+    throw new AuthError('Ошибка сети', 'network');
+  }
 
   if (res.status === 401) {
+    // Token is genuinely invalid/expired — clear tokens
     clearStoredTokens();
     throw new AuthError('Сессия истекла', 'session_expired');
   }
