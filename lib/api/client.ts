@@ -2,7 +2,27 @@
 // при 401 вызывает POST /api/auth/refresh/ с refresh и повторяет запрос.
 // Используется для /api/links/ и /api/stats/.
 
-import { getAccessToken, refreshToken } from './auth';
+import { getAccessToken, refreshToken, clearStoredTokens } from './auth';
+import { toast } from 'sonner';
+
+let sessionExpiredToastShown = false;
+
+function notifySessionExpired() {
+  if (sessionExpiredToastShown) return;
+  sessionExpiredToastShown = true;
+  toast.error('Сессия истекла. Войдите снова.', {
+    description: 'Обновите страницу или нажмите кнопку входа.',
+    duration: 0,
+    action: {
+      label: 'Войти',
+      onClick: () => {
+        sessionExpiredToastShown = false;
+        window.location.href = '/login';
+      },
+    },
+    onDismiss: () => { sessionExpiredToastShown = false; },
+  });
+}
 
 export interface ApiClientOptions extends RequestInit {
   skipAuth?: boolean;
@@ -54,9 +74,13 @@ export async function apiRequest<T = unknown>(
       if (newToken) {
         headers.set('Authorization', `Bearer ${newToken}`);
         res = await fetch(input, { ...fetchInit, headers });
+      } else {
+        clearStoredTokens();
+        notifySessionExpired();
       }
     } catch {
-      // refresh failed, return original 401 response
+      clearStoredTokens();
+      notifySessionExpired();
     }
   }
 

@@ -13,6 +13,7 @@ import {
   type LoginCredentials,
   AuthError,
 } from '@/lib/api/auth';
+import { toast } from 'sonner';
 
 const REFRESH_CHECK_INTERVAL_MS = 60 * 1000; // check every 1 min
 
@@ -75,6 +76,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user: null,
         isAuthenticated: false,
       }));
+      toast.error('Сессия истекла. Войдите снова.', {
+        description: 'Ваша сессия завершена. Нажмите "Войти" для продолжения работы.',
+        duration: 0,
+        action: {
+          label: 'Войти',
+          onClick: () => { window.location.href = '/login'; },
+        },
+      });
     }
   }, []);
 
