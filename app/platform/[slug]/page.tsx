@@ -50,7 +50,7 @@ export default function PlatformPage() {
     isAll ? {} : { platform }
   );
   
-  const { links, loading, addLink, modifyLink, removeLink, refresh, applyOptimisticStatus } = useLinks(filters);
+  const { links, loading, loadingMore, hasMore, totalCount, addLink, modifyLink, removeLink, refresh, loadMore, applyOptimisticStatus } = useLinks(filters);
   const { managers } = useManagers();
   
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -134,7 +134,7 @@ export default function PlatformPage() {
           <div className="min-w-0">
             <h1 className="text-2xl sm:text-4xl font-bold tracking-tight truncate">{platformLabel}</h1>
             <p className="text-muted-foreground text-sm">
-              {loading ? 'Loading...' : `${links.length} links found`}
+              {loading ? 'Loading...' : `${totalCount} links found`}
             </p>
           </div>
         </div>
@@ -199,7 +199,7 @@ export default function PlatformPage() {
             onClick={() => setSelectedIds(links.map(l => l.id))}
           >
             <CheckSquare className="h-4 w-4" />
-            Select all {links.length}
+            Select all {links.length}{totalCount > links.length ? ` of ${totalCount}` : ''}
           </Button>
         )}
       </div>
@@ -258,6 +258,9 @@ export default function PlatformPage() {
           onEdit={setEditingLink}
           onDelete={handleDeleteLink}
           onStatusChange={handleStatusChange}
+          onLoadMore={loadMore}
+          hasMore={hasMore}
+          loadingMore={loadingMore}
           managers={managers}
         />
       )}

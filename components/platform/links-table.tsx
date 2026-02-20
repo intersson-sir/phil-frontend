@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Table,
   TableBody,
@@ -35,6 +35,9 @@ interface LinksTableProps {
   onEdit: (link: NegativeLink) => void;
   onDelete: (id: string) => void;
   onStatusChange?: (id: string, status: Status) => void;
+  onLoadMore?: () => void;
+  hasMore?: boolean;
+  loadingMore?: boolean;
   managers?: Manager[];
 }
 
@@ -45,8 +48,26 @@ export function LinksTable({
   onEdit, 
   onDelete,
   onStatusChange,
+  onLoadMore,
+  hasMore = false,
+  loadingMore = false,
   managers = [],
 }: LinksTableProps) {
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!onLoadMore || !hasMore) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) onLoadMore();
+      },
+      { threshold: 0.1 }
+    );
+    const el = sentinelRef.current;
+    if (el) observer.observe(el);
+    return () => observer.disconnect();
+  }, [onLoadMore, hasMore]);
+
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       onSelectionChange(links.map(link => link.id));
@@ -75,6 +96,7 @@ export function LinksTable({
   };
 
   return (
+    <>
     <div className="border rounded-lg">
       <Table>
         <TableHeader>
@@ -186,5 +208,18 @@ export function LinksTable({
         </TableBody>
       </Table>
     </div>
+    {hasMore && (
+      <div ref={sentinelRef} className="py-4 text-center text-sm text-muted-foreground">
+        {loadingMore ? (
+          <div className="flex items-center justify-center gap-2">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            Loading more...
+          </div>
+        ) : (
+          <span>Scroll to load more</span>
+        )}
+      </div>
+    )}
+    </>
   );
 }
