@@ -7,6 +7,7 @@ export const PLATFORMS: { value: Platform; label: string; icon: string }[] = [
   { value: 'twitter', label: 'Twitter/X', icon: 'twitter' },
   { value: 'youtube', label: 'YouTube', icon: 'youtube' },
   { value: 'reddit', label: 'Reddit', icon: 'reddit' },
+  { value: 'account', label: 'Account', icon: 'account' },
   { value: 'other', label: 'Other', icon: 'other' },
 ];
 

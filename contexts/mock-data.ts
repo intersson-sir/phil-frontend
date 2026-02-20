@@ -2,8 +2,8 @@
 
 import { NegativeLink, Platform, LinkType, Status, Priority } from '@/types';
 
-const platforms: Platform[] = ['facebook', 'twitter', 'youtube', 'reddit', 'other'];
-const types: LinkType[] = ['post', 'comment', 'video', 'article'];
+const platforms: Platform[] = ['facebook', 'twitter', 'youtube', 'reddit', 'account', 'other'];
+const types: LinkType[] = ['post', 'comment', 'video', 'article', 'account'];
 const statuses: Status[] = ['active', 'removed', 'in_work', 'pending', 'cancelled'];
 const priorities: Priority[] = ['low', 'medium', 'high'];
 const managerIds = ['1', '2', '3', '4']; // match MOCK_MANAGERS in managers.ts
@@ -28,6 +28,11 @@ const sampleUrls: Record<Platform, string[]> = {
     'https://reddit.com/r/subreddit/comments/abc123',
     'https://reddit.com/r/news/comments/xyz789',
     'https://reddit.com/r/technology/comments/def456',
+  ],
+  account: [
+    'https://facebook.com/profile/user123',
+    'https://twitter.com/username',
+    'https://instagram.com/account_name',
   ],
   other: [
     'https://example.com/article/123',
