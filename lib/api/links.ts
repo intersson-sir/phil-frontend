@@ -50,7 +50,7 @@ function normalizeLink(raw: Record<string, unknown>): NegativeLink {
 /** Build query string for GET /api/links/. Uses manager_id for manager filter. */
 function buildLinksQuery(filters?: FilterParams): string {
   const params = new URLSearchParams();
-  params.set('page_size', '50');
+  params.set('page_size', '300');
   if (filters) {
     if (filters.platform) params.set('platform', filters.platform);
     if (filters.status) params.set('status', filters.status);
