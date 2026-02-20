@@ -64,7 +64,7 @@ export default function PlatformPage() {
     }
   };
 
-  const handleKanbanStatusChange = async (linkId: string, newStatus: Status) => {
+  const handleStatusChange = async (linkId: string, newStatus: Status) => {
     applyOptimisticStatus(linkId, newStatus);
     try {
       await modifyLink(linkId, { status: newStatus });
@@ -215,7 +215,7 @@ export default function PlatformPage() {
           managers={managers}
           onEdit={setEditingLink}
           onDelete={handleDeleteLink}
-          onStatusChange={handleKanbanStatusChange}
+          onStatusChange={handleStatusChange}
         />
       ) : isMobile ? (
         <div className="space-y-3">
@@ -244,6 +244,7 @@ export default function PlatformPage() {
           onSelectionChange={setSelectedIds}
           onEdit={setEditingLink}
           onDelete={handleDeleteLink}
+          onStatusChange={handleStatusChange}
           managers={managers}
         />
       )}

@@ -19,8 +19,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, ExternalLink } from 'lucide-react';
-import { NegativeLink, Manager } from '@/types';
+import { MoreHorizontal, ExternalLink, Trash2 } from 'lucide-react';
+import { NegativeLink, Manager, Status } from '@/types';
 import { StatusBadge } from '@/components/shared/status-badge';
 import { getManagerDisplayName } from '@/lib/utils';
 import { PriorityBadge } from '@/components/shared/priority-badge';
@@ -34,6 +34,7 @@ interface LinksTableProps {
   onSelectionChange: (ids: string[]) => void;
   onEdit: (link: NegativeLink) => void;
   onDelete: (id: string) => void;
+  onStatusChange?: (id: string, status: Status) => void;
   managers?: Manager[];
 }
 
@@ -43,6 +44,7 @@ export function LinksTable({
   onSelectionChange, 
   onEdit, 
   onDelete,
+  onStatusChange,
   managers = [],
 }: LinksTableProps) {
   const handleSelectAll = (checked: boolean) => {
@@ -92,7 +94,7 @@ export function LinksTable({
             <TableHead className="w-24">Priority</TableHead>
             <TableHead className="w-32">Manager</TableHead>
             <TableHead className="w-32">Detected</TableHead>
-            <TableHead className="w-12"></TableHead>
+            <TableHead className="w-36"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -146,24 +148,38 @@ export function LinksTable({
                   </span>
                 </TableCell>
                 <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => onEdit(link)}>
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => onDelete(link.id)}
-                        className="text-red-500"
+                  <div className="flex items-center gap-1">
+                    {link.status !== 'removed' && onStatusChange && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-2 text-xs text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
+                        onClick={() => onStatusChange(link.id, 'removed')}
+                        title="Mark as Removed"
                       >
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        <Trash2 className="h-3.5 w-3.5 mr-1" />
+                        Removed
+                      </Button>
+                    )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => onEdit(link)}>
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => onDelete(link.id)}
+                          className="text-red-500"
+                        >
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </TableCell>
               </TableRow>
             ))
