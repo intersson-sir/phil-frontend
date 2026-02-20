@@ -19,7 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, ExternalLink, Trash2 } from 'lucide-react';
+import { MoreHorizontal, ExternalLink } from 'lucide-react';
 import { NegativeLink, Manager, Status } from '@/types';
 import { StatusBadge } from '@/components/shared/status-badge';
 import { getManagerDisplayName } from '@/lib/utils';
@@ -149,16 +149,15 @@ export function LinksTable({
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1">
-                    {link.status !== 'removed' && onStatusChange && (
+                    {onStatusChange && (
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-8 px-2 text-xs text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
+                        className="h-8 w-8 p-0 text-xs font-bold text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
                         onClick={() => onStatusChange(link.id, 'removed')}
                         title="Mark as Removed"
                       >
-                        <Trash2 className="h-3.5 w-3.5 mr-1" />
-                        Removed
+                        R
                       </Button>
                     )}
                     <DropdownMenu>
