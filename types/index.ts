@@ -1,7 +1,7 @@
 // Core domain types for Phil CRM
 
 export type Platform = 'facebook' | 'twitter' | 'youtube' | 'reddit' | 'other';
-export type LinkType = 'post' | 'comment' | 'video' | 'article';
+export type LinkType = 'post' | 'comment' | 'video' | 'article' | 'account';
 export type Status = 'active' | 'removed' | 'in_work' | 'pending' | 'cancelled';
 export type Priority = 'low' | 'medium' | 'high';
 

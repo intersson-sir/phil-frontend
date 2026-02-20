@@ -29,6 +29,7 @@ export const LINK_TYPES: { value: LinkType; label: string }[] = [
   { value: 'comment', label: 'Comment' },
   { value: 'video', label: 'Video' },
   { value: 'article', label: 'Article' },
+  { value: 'account', label: 'Account' },
 ];
 
 export const MANAGERS = [
