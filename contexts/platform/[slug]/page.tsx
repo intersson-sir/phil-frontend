@@ -23,7 +23,7 @@ import { CreateLinkDto, UpdateLinkDto } from '@/types/api';
 import { bulkUpdateStatus, bulkAssignManager } from '@/lib/api/links';
 import { PLATFORMS } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
-import { LayoutGrid, List, CheckSquare } from 'lucide-react';
+import { LayoutGrid, List } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const VIEW_STORAGE_KEY = 'phil-platform-view';
@@ -64,7 +64,7 @@ export default function PlatformPage() {
     }
   };
 
-  const handleStatusChange = async (linkId: string, newStatus: Status) => {
+  const handleKanbanStatusChange = async (linkId: string, newStatus: Status) => {
     applyOptimisticStatus(linkId, newStatus);
     try {
       await modifyLink(linkId, { status: newStatus });
@@ -191,17 +191,6 @@ export default function PlatformPage() {
             hasActiveFilters={hasActiveFilters}
           />
         )}
-        {!loading && links.length > 0 && viewMode === 'table' && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5 ml-auto"
-            onClick={() => setSelectedIds(links.map(l => l.id))}
-          >
-            <CheckSquare className="h-4 w-4" />
-            Select all {links.length}
-          </Button>
-        )}
       </div>
 
       {/* Bulk Actions */}
@@ -228,7 +217,7 @@ export default function PlatformPage() {
           managers={managers}
           onEdit={setEditingLink}
           onDelete={handleDeleteLink}
-          onStatusChange={handleStatusChange}
+          onStatusChange={handleKanbanStatusChange}
         />
       ) : isMobile ? (
         <div className="space-y-3">
@@ -257,7 +246,6 @@ export default function PlatformPage() {
           onSelectionChange={setSelectedIds}
           onEdit={setEditingLink}
           onDelete={handleDeleteLink}
-          onStatusChange={handleStatusChange}
           managers={managers}
         />
       )}

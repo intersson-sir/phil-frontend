@@ -49,18 +49,17 @@ function normalizeLink(raw: Record<string, unknown>): NegativeLink {
 
 /** Build query string for GET /api/links/. Uses manager_id for manager filter. */
 function buildLinksQuery(filters?: FilterParams): string {
+  if (!filters || Object.keys(filters).length === 0) return '';
   const params = new URLSearchParams();
-  params.set('page_size', '10000');
-  if (filters) {
-    if (filters.platform) params.set('platform', filters.platform);
-    if (filters.status) params.set('status', filters.status);
-    if (filters.priority) params.set('priority', filters.priority);
-    if (filters.manager) params.set('manager_id', filters.manager);
-    if (filters.dateFrom) params.set('date_from', filters.dateFrom);
-    if (filters.dateTo) params.set('date_to', filters.dateTo);
-    if (filters.search) params.set('search', filters.search);
-  }
-  return `?${params.toString()}`;
+  if (filters.platform) params.set('platform', filters.platform);
+  if (filters.status) params.set('status', filters.status);
+  if (filters.priority) params.set('priority', filters.priority);
+  if (filters.manager) params.set('manager_id', filters.manager);
+  if (filters.dateFrom) params.set('date_from', filters.dateFrom);
+  if (filters.dateTo) params.set('date_to', filters.dateTo);
+  if (filters.search) params.set('search', filters.search);
+  const q = params.toString();
+  return q ? `?${q}` : '';
 }
 
 export async function getLinks(filters?: FilterParams): Promise<NegativeLink[]> {
@@ -71,21 +70,10 @@ export async function getLinks(filters?: FilterParams): Promise<NegativeLink[]> 
   }
 
   const query = buildLinksQuery(filters);
-  let url: string | null = `${API_BASE_URL}/api/links/${query}`;
-  const allLinks: NegativeLink[] = [];
-
-  while (url) {
-    const data = await apiRequest<unknown>(url, { method: 'GET' });
-    if (Array.isArray(data)) {
-      return [...allLinks, ...data.map((item) => normalizeLink(item as Record<string, unknown>))];
-    }
-    const paginated = data as { results?: unknown[]; next?: string | null };
-    const results = paginated.results ?? [];
-    allLinks.push(...results.map((item) => normalizeLink(item as Record<string, unknown>)));
-    url = paginated.next ?? null;
-  }
-
-  return allLinks;
+  const data = await apiRequest<unknown>(`${API_BASE_URL}/api/links/${query}`, { method: 'GET' });
+  const arr = Array.isArray(data) ? data : (data as { results?: unknown[] })?.results;
+  if (!Array.isArray(arr)) return [];
+  return arr.map((item) => normalizeLink(item as Record<string, unknown>));
 }
 
 export async function getLinkById(id: string): Promise<NegativeLink | null> {

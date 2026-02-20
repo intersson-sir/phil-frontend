@@ -11,14 +11,18 @@ import { useManagers } from '@/hooks/use-managers';
 
 interface BulkActionsBarProps {
   selectedCount: number;
+  totalCount: number;
   onClearSelection: () => void;
+  onSelectAll: () => void;
   onUpdateStatus: (status: Status) => void;
   onAssignManager: (manager: string) => void;
 }
 
 export function BulkActionsBar({ 
-  selectedCount, 
-  onClearSelection, 
+  selectedCount,
+  totalCount,
+  onClearSelection,
+  onSelectAll,
   onUpdateStatus,
   onAssignManager 
 }: BulkActionsBarProps) {
@@ -26,11 +30,23 @@ export function BulkActionsBar({
   const activeManagers = managers.filter((m) => m.is_active);
   if (selectedCount === 0) return null;
 
+  const allSelected = selectedCount === totalCount;
+
   return (
     <div className="sticky top-16 z-40 bg-primary/10 border border-primary/50 rounded-lg p-4 mb-4">
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
           <span className="font-medium">{selectedCount} selected</span>
+          {!allSelected && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onSelectAll}
+              className="h-8 text-xs"
+            >
+              Select all {totalCount}
+            </Button>
+          )}
           <Button 
             variant="ghost" 
             size="sm" 
