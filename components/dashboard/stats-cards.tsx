@@ -57,6 +57,7 @@ interface StatsCardsProps {
     active: number;
     removed: number;
     in_work: number;
+    pending: number;
     cancelled: number;
     new_in_period: number;
     removed_in_period: number;
@@ -65,7 +66,7 @@ interface StatsCardsProps {
 
 export function StatsCards({ stats }: StatsCardsProps) {
   return (
-    <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-7">
+    <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-8">
       <StatCard 
         title="Total Links" 
         value={stats.total} 
@@ -84,6 +85,11 @@ export function StatsCards({ stats }: StatsCardsProps) {
       <StatCard 
         title="In Work" 
         value={stats.in_work} 
+        variant="warning"
+      />
+      <StatCard 
+        title="Pending" 
+        value={stats.pending} 
         variant="warning"
       />
       <StatCard 

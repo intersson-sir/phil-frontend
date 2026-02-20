@@ -267,6 +267,7 @@ export default function PlatformPage() {
 
       {/* Edit Dialog */}
       <LinkEditorDialog
+        key={editingLink?.id}
         link={editingLink}
         open={!!editingLink}
         onClose={() => setEditingLink(null)}

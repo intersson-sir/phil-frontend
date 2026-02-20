@@ -40,22 +40,32 @@ export function LinkEditorDialog({
   const { managers } = useManagers();
   const activeManagers = managers.filter((m) => m.is_active);
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState<UpdateLinkDto>({});
+
+  const getManagerId = (l: NegativeLink) =>
+    l.manager != null && typeof l.manager === 'object'
+      ? l.manager.id
+      : typeof l.manager === 'string'
+      ? l.manager
+      : null;
+
+  const [formData, setFormData] = useState<UpdateLinkDto>(() =>
+    link
+      ? { status: link.status, priority: link.priority, manager_id: getManagerId(link), notes: link.notes }
+      : {}
+  );
 
   useEffect(() => {
     if (link) {
-      const managerId =
-        link.manager != null && typeof link.manager === 'object'
-          ? link.manager.id
-          : (typeof link.manager === 'string' ? link.manager : undefined);
       setFormData({
         status: link.status,
         priority: link.priority,
-        manager_id: managerId ?? null,
+        manager_id: getManagerId(link),
         notes: link.notes,
       });
     }
   }, [link]);
+
+  const UNASSIGNED = '__none__';
 
   if (!link) return null;
 
@@ -144,14 +154,14 @@ export function LinkEditorDialog({
                 <div className="grid gap-2">
                   <Label htmlFor="manager">Manager</Label>
                   <Select 
-                    value={formData.manager_id ?? ''} 
-                    onValueChange={(value) => setFormData({ ...formData, manager_id: value || null })}
+                    value={formData.manager_id ?? UNASSIGNED} 
+                    onValueChange={(value) => setFormData({ ...formData, manager_id: value === UNASSIGNED ? null : value })}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Unassigned" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Unassigned</SelectItem>
+                      <SelectItem value={UNASSIGNED}>Unassigned</SelectItem>
                       {activeManagers.map((m) => (
                         <SelectItem key={m.id} value={m.id}>
                           {m.name}
