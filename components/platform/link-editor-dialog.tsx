@@ -16,9 +16,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { NegativeLink, Status, Priority } from '@/types';
+import { NegativeLink, Status, Priority, LinkType } from '@/types';
 import { UpdateLinkDto } from '@/types/api';
-import { STATUSES, PRIORITIES } from '@/lib/constants';
+import { STATUSES, PRIORITIES, LINK_TYPES } from '@/lib/constants';
 import { useManagers } from '@/hooks/use-managers';
 import { ActivityLog } from '@/components/activity/ActivityLog';
 
@@ -50,13 +50,14 @@ export function LinkEditorDialog({
 
   const [formData, setFormData] = useState<UpdateLinkDto>(() =>
     link
-      ? { status: link.status, priority: link.priority, manager_id: getManagerId(link), notes: link.notes }
+      ? { type: link.type, status: link.status, priority: link.priority, manager_id: getManagerId(link), notes: link.notes }
       : {}
   );
 
   useEffect(() => {
     if (link) {
       setFormData({
+        type: link.type,
         status: link.status,
         priority: link.priority,
         manager_id: getManagerId(link),
@@ -115,6 +116,24 @@ export function LinkEditorDialog({
           <TabsContent value="details" className="mt-4">
             <form onSubmit={handleSubmit}>
               <div className="grid gap-4 py-2">
+                <div className="grid gap-2">
+                  <Label htmlFor="type">Type</Label>
+                  <Select
+                    value={formData.type ?? ''}
+                    onValueChange={(value) => setFormData({ ...formData, type: value as LinkType })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LINK_TYPES.map(t => (
+                        <SelectItem key={t.value} value={t.value}>
+                          {t.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="grid gap-2">
                   <Label htmlFor="status">Status</Label>
                   <Select 
