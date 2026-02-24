@@ -1,8 +1,6 @@
-// Link Editor Dialog Component
-
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -30,50 +28,44 @@ interface LinkEditorDialogProps {
   onDeleteLink: (id: string) => Promise<void>;
 }
 
-export function LinkEditorDialog({ 
-  link, 
-  open, 
-  onClose, 
-  onUpdateLink, 
-  onDeleteLink 
-}: LinkEditorDialogProps) {
+function resolveManagerId(manager: NegativeLink['manager']): string | null {
+  if (manager == null) return null;
+  if (typeof manager === 'object') return manager.id;
+  if (typeof manager === 'string') return manager;
+  return null;
+}
+
+interface LinkEditorInnerProps {
+  link: NegativeLink;
+  open: boolean;
+  onClose: () => void;
+  onUpdateLink: (id: string, data: UpdateLinkDto) => Promise<void>;
+  onDeleteLink: (id: string) => Promise<void>;
+}
+
+function LinkEditorInner({
+  link,
+  open,
+  onClose,
+  onUpdateLink,
+  onDeleteLink,
+}: LinkEditorInnerProps) {
   const { managers } = useManagers();
   const activeManagers = managers.filter((m) => m.is_active);
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'details' | 'history'>('details');
 
-  const getManagerId = (l: NegativeLink) =>
-    l.manager != null && typeof l.manager === 'object'
-      ? l.manager.id
-      : typeof l.manager === 'string'
-      ? l.manager
-      : null;
-
-  const [formData, setFormData] = useState<UpdateLinkDto>(() =>
-    link
-      ? { type: link.type, status: link.status, priority: link.priority, manager_id: getManagerId(link), notes: link.notes }
-      : {}
-  );
-
-  useEffect(() => {
-    if (link) {
-      setFormData({
-        type: link.type,
-        status: link.status,
-        priority: link.priority,
-        manager_id: getManagerId(link),
-        notes: link.notes,
-      });
-    }
-  }, [link]);
-
-  const UNASSIGNED = '__none__';
-
-  if (!link) return null;
+  const [formData, setFormData] = useState<UpdateLinkDto>(() => ({
+    type: link.type,
+    status: link.status,
+    priority: link.priority,
+    manager_id: resolveManagerId(link.manager),
+    notes: link.notes,
+  }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
     try {
       await onUpdateLink(link.id, formData);
       onClose();
@@ -86,7 +78,6 @@ export function LinkEditorDialog({
 
   const handleDelete = async () => {
     if (!confirm('Are you sure you want to delete this link?')) return;
-    
     setLoading(true);
     try {
       await onDeleteLink(link.id);
@@ -108,11 +99,16 @@ export function LinkEditorDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="details" className="w-full">
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as 'details' | 'history')}
+          className="w-full"
+        >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="history">История изменений</TabsTrigger>
           </TabsList>
+
           <TabsContent value="details" className="mt-4">
             <form onSubmit={handleSubmit}>
               <div className="grid gap-4 py-2">
@@ -126,7 +122,7 @@ export function LinkEditorDialog({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {LINK_TYPES.map(t => (
+                      {LINK_TYPES.map((t) => (
                         <SelectItem key={t.value} value={t.value}>
                           {t.label}
                         </SelectItem>
@@ -136,15 +132,15 @@ export function LinkEditorDialog({
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="status">Status</Label>
-                  <Select 
-                    value={formData.status} 
+                  <Select
+                    value={formData.status ?? ''}
                     onValueChange={(value) => setFormData({ ...formData, status: value as Status })}
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {STATUSES.map(status => (
+                      {STATUSES.map((status) => (
                         <SelectItem key={status.value} value={status.value}>
                           {status.label}
                         </SelectItem>
@@ -154,15 +150,15 @@ export function LinkEditorDialog({
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="priority">Priority</Label>
-                  <Select 
-                    value={formData.priority} 
+                  <Select
+                    value={formData.priority ?? ''}
                     onValueChange={(value) => setFormData({ ...formData, priority: value as Priority })}
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {PRIORITIES.map(priority => (
+                      {PRIORITIES.map((priority) => (
                         <SelectItem key={priority.value} value={priority.value}>
                           {priority.label}
                         </SelectItem>
@@ -172,15 +168,17 @@ export function LinkEditorDialog({
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="manager">Manager</Label>
-                  <Select 
-                    value={formData.manager_id ?? UNASSIGNED} 
-                    onValueChange={(value) => setFormData({ ...formData, manager_id: value === UNASSIGNED ? null : value })}
+                  <Select
+                    value={formData.manager_id ?? '__none__'}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, manager_id: value === '__none__' ? null : value })
+                    }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Unassigned" />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={UNASSIGNED}>Unassigned</SelectItem>
+                      <SelectItem value="__none__">Unassigned</SelectItem>
                       {activeManagers.map((m) => (
                         <SelectItem key={m.id} value={m.id}>
                           {m.name}
@@ -194,15 +192,15 @@ export function LinkEditorDialog({
                   <Input
                     id="notes"
                     placeholder="Additional notes"
-                    value={formData.notes || ''}
+                    value={formData.notes ?? ''}
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   />
                 </div>
               </div>
               <DialogFooter className="gap-2 mt-4">
-                <Button 
-                  type="button" 
-                  variant="destructive" 
+                <Button
+                  type="button"
+                  variant="destructive"
                   onClick={handleDelete}
                   disabled={loading}
                 >
@@ -218,13 +216,37 @@ export function LinkEditorDialog({
               </DialogFooter>
             </form>
           </TabsContent>
+
           <TabsContent value="history" className="mt-4">
-            <div className="max-h-[360px] overflow-y-auto pr-1">
-              <ActivityLog linkId={link.id} />
-            </div>
+            {activeTab === 'history' && (
+              <div className="max-h-[360px] overflow-y-auto pr-1">
+                <ActivityLog linkId={link.id} />
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </DialogContent>
     </Dialog>
+  );
+}
+
+export function LinkEditorDialog({
+  link,
+  open,
+  onClose,
+  onUpdateLink,
+  onDeleteLink,
+}: LinkEditorDialogProps) {
+  if (!link) return null;
+
+  return (
+    <LinkEditorInner
+      key={link.id}
+      link={link}
+      open={open}
+      onClose={onClose}
+      onUpdateLink={onUpdateLink}
+      onDeleteLink={onDeleteLink}
+    />
   );
 }
