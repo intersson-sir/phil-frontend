@@ -51,7 +51,7 @@ export function CreateLinkDialog({ onCreateLink, defaultPlatform }: CreateLinkDi
     platform: defaultPlatform ?? 'other',
     type: 'post',
     priority: 'medium',
-    status: 'pending',
+    status: 'active',
   });
 
   const handleUrlChange = (url: string) => {
@@ -97,7 +97,7 @@ export function CreateLinkDialog({ onCreateLink, defaultPlatform }: CreateLinkDi
         platform: defaultPlatform ?? 'other',
         type: 'post',
         priority: 'medium',
-        status: 'pending',
+        status: 'active',
       });
     } catch (error) {
       console.error('Failed to create link:', error);
@@ -116,7 +116,7 @@ export function CreateLinkDialog({ onCreateLink, defaultPlatform }: CreateLinkDi
         platform: defaultPlatform ?? 'other',
         type: 'post',
         priority: 'medium',
-        status: 'pending',
+        status: 'active',
       });
     }
   };
