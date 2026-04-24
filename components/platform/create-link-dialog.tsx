@@ -33,7 +33,7 @@ export function CreateLinkDialog({ onCreateLink }: CreateLinkDialogProps) {
     platform: 'other',
     type: 'post',
     priority: 'medium',
-    status: 'pending',
+    status: 'active',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,7 +49,7 @@ export function CreateLinkDialog({ onCreateLink }: CreateLinkDialogProps) {
         platform: 'other',
         type: 'post',
         priority: 'medium',
-        status: 'pending',
+        status: 'active',
       });
     } catch (error) {
       console.error('Failed to create link:', error);
